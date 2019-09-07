@@ -10,7 +10,6 @@ class App extends Component {
 
   componentDidMount() {
     this.getVenues()
-    this.renderMap()
   }
 
   renderMap = () => {
@@ -32,7 +31,7 @@ class App extends Component {
       .then(response => {
         this.setState({
           venues: response.data.response.groups[0].items
-        })
+        }, this.renderMap())
       })
       .catch(error => {
         console.log("Error!!" + error)
@@ -40,12 +39,46 @@ class App extends Component {
   }
 
   initMap = () => {
+
+    //create a Map
     var map = new window.google.maps.Map(document.getElementById('map'),
-     {
-       center: {lat: 40.626162, lng: -111.911355},
-       zoom: 16
+    {
+      center: {lat: 40.626162, lng: -111.911355},
+      zoom: 12
+    })
+
+    //create an Info Window
+    var infoWindow = new window.google.maps.InfoWindow()
+
+    //Display Dynamic Markers
+    this.state.venues.map(myVenue => {
+
+      var contentString = `${myVenue.venue.name}`
+
+     
+      //create a Marker
+      var marker = new window.google.maps.Marker({
+        position: {lat: myVenue.venue.location.lat, lng: myVenue.venue.location.lng},
+        map: map,
+        title: myVenue.venue.name
+      })
+
+      //Click on a Marker
+      marker.addListener('click', function() {
+        
+        //Change the content
+        infoWindow.setContent(contentString)
+        
+        //Open an InfoWindow
+        infoWindow.open(map, marker)
+      })
+
      })
+
+     
   }
+
+  
 
   render() {
     return (
